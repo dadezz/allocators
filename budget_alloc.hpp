@@ -16,7 +16,6 @@ struct BudgetAllocator {
 
     template <typename U, std::size_t Ubudget>
     BudgetAllocator(const BudgetAllocator<U, Ubudget>& other) noexcept {
-        std::cout << "other.free_space: " << *other.free_space << std::endl;
         free_space = other.free_space;
     }
 
@@ -24,19 +23,18 @@ struct BudgetAllocator {
         if (n > std::size_t(-1) / sizeof(T))
             throw std::bad_alloc();
         auto req = n * sizeof(T);
-        std::cout << "allocating memory. requested: " << req <<", available: " << *free_space <<std::endl;
         if (req > *free_space)
             throw std::bad_alloc();
-        T* p = static_cast<T*>( ::operator new(req));
+        
+        T* p = static_cast<T*>(::operator new(req, std::align_val_t(alignof(T))));
+        
         *free_space -= req;
-        std::cout << "allocated. available now: " << *free_space << std::endl;
         return p;
     }
 
     void deallocate (T* p, std::size_t n) noexcept {
         auto req = n*sizeof(T);
-        std::cout << "freeing the memory" <<std::endl;
-        ::operator delete(p, req);
+        ::operator delete(p, req, std::align_val_t(alignof(T)));
         *free_space += req;
     }
 

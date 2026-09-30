@@ -26,13 +26,15 @@ struct OutputAllocator {
             throw std::bad_alloc();
         }
 
-        return static_cast<T*>(::operator new(n * sizeof(T)));
+        
+        return static_cast<T*>(::operator new(n * sizeof(T), std::align_val_t(alignof(T))));
+        
     }
 
     // required, free
     void deallocate(T* p, std::size_t n) {
-        std::cout << "custom delete for " << p << " pointer called. n parameter is ignored" << std::endl;
-        ::operator delete(p);
+        std::cout << "custom delete for " << p << " pointer called" << std::endl;
+        ::operator delete(p, std::align_val_t(alignof(T)));
     }
 
     // required, boolean operator: can an allocator free another allocator?
