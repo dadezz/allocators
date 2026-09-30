@@ -1,3 +1,4 @@
+#pragma once
 #include <new>
 #include <memory>
 #include <cstddef> 
@@ -20,6 +21,8 @@ struct BudgetAllocator {
     }
 
     T* allocate (std::size_t n) {
+        if (n > std::size_t(-1) / sizeof(T))
+            throw std::bad_alloc();
         auto req = n * sizeof(T);
         std::cout << "allocating memory. requested: " << req <<", available: " << *free_space <<std::endl;
         if (req > *free_space)
@@ -39,12 +42,12 @@ struct BudgetAllocator {
 
     template <typename U, std::size_t Ubudget>
     [[nodiscard]] friend bool operator==(const BudgetAllocator<T, budget>& t, const BudgetAllocator<U, Ubudget>& u) noexcept {
-        return *t.free_space == *u.free_space;
+        return t.free_space == u.free_space;
     }
 
     template <typename U>
     struct rebind { using other = BudgetAllocator<U, budget>; };
 
 
-    std::shared_ptr<size_t> free_space; // in bytes 
+    std::shared_ptr<std::size_t> free_space; // in bytes 
 };

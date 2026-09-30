@@ -1,3 +1,4 @@
+#pragma once
 #include <new>  // for ::operator new and std::bad_alloc
 #include <memory>
 #include <cstddef> // for std::size_t

@@ -1,3 +1,4 @@
+#pragma once
 #include <memory>
 #include <new>
 #include <iostream>
@@ -20,7 +21,7 @@ struct AlignedAllocator {
     }
 
     void deallocate(T* p, std::size_t) noexcept {
-        ::operator delete (p, std::align_val_t(AlignAt));
+        ::operator delete (p, std::align_val_t(alignAt));
     }
 
     template <typename U, std::size_t uAlign>
